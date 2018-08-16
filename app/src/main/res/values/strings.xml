@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">GrabbingRedpackets</string>
+    <string name="service_description">可以抢QQ和微信的红包</string>
+</resources>
