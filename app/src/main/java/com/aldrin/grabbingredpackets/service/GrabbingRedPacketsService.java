@@ -17,9 +17,9 @@ public class GrabbingRedPacketsService extends AccessibilityService implements S
 
     private static final String TAG = "GrabbingRedPacketsServi";
 
-    private final static String WX_DEFAULT_CLICK_OPEN = "微信红包";
     private final static String WX_RED_PACKETS_GET = "领取红包";
     private final static String WX_GIVE_YOU_RED_PACKETS = "给你发了一个红包";
+    private final static String WX_GET = "红包已领取";
     private final static String QQ_CLICK_TO_ENTER_PASSWORD = "点击输入口令";
     private final static String QQ_DEFAULT = "QQ红包";
     private final static String QQ_DEFAULT_PASSWORD = "口令红包";
@@ -124,11 +124,11 @@ public class GrabbingRedPacketsService extends AccessibilityService implements S
                 lastFetchedHongbaoId = id;
                 lastFetchedTime = now;
 
-                if (cellNode.getText().toString().equals("已领取")) {
+                if (cellNode.getText().toString().equals("红包已领取")) {
                     return;
                 }
 
-                if (WX_RED_PACKETS_GET.equals(cellNode.getText().toString())) {
+                if (WX_RED_PACKETS_GET.contains(cellNode.getText().toString())) {
                     cellNode.getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);
                     return;
                 }
@@ -196,7 +196,8 @@ public class GrabbingRedPacketsService extends AccessibilityService implements S
         // 聊天会话窗口，遍历节点匹配
         List<AccessibilityNodeInfo> nodes1 = findAccessibilityNodeInfosByTexts(this.rootNodeInfo,
                 new String[]{QQ_DEFAULT, QQ_DEFAULT_PASSWORD, QQ_CLICK_TO_ENTER_PASSWORD,
-                        WX_RED_PACKETS_GET, WX_DEFAULT_CLICK_OPEN, WX_GIVE_YOU_RED_PACKETS, QQ_SEND_BUTTON_TEXT});
+                        WX_RED_PACKETS_GET, WX_GIVE_YOU_RED_PACKETS
+                        , QQ_SEND_BUTTON_TEXT,WX_GET});
         if (!nodes1.isEmpty()) {
             String nodeId = Integer.toHexString(System.identityHashCode(this.rootNodeInfo));
             if (!nodeId.equals(lastFetchedHongbaoId)) {
