@@ -3,18 +3,23 @@ package com.aldrin.grabbingredpackets.service;
 import android.accessibilityservice.AccessibilityService;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.SharedPreferences;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GrabbingRedPacketsService extends AccessibilityService {
+public class GrabbingRedPacketsService extends AccessibilityService implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static final String TAG = "GrabbingRedPacketsServi";
 
     private final static String WX_DEFAULT_CLICK_OPEN = "微信红包";
     private final static String WX_RED_PACKETS_GET = "领取红包";
-    private final static String WX_GIVE_YOU_RED_PACKETS= "给你发了一个红包";
+    private final static String WX_GIVE_YOU_RED_PACKETS = "给你发了一个红包";
     private final static String QQ_CLICK_TO_ENTER_PASSWORD = "点击输入口令";
     private final static String QQ_DEFAULT = "QQ红包";
     private final static String QQ_DEFAULT_PASSWORD = "口令红包";
@@ -27,10 +32,44 @@ public class GrabbingRedPacketsService extends AccessibilityService {
     private static final int MAX_CACHE_TOLERANCE = 5000;
     private AccessibilityNodeInfo rootNodeInfo;
     private List<AccessibilityNodeInfo> mReceiveNode;
+    private SharedPreferences sharedPreferences;
+    private int watchType;
 
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        switch (sharedPreferences.getString("watch_list", "")) {
+            case "watch_both":
+                watchType = 0;
+                break;
+            case "watch_qq":
+                watchType = 1;
+                break;
+            case "watch_wx":
+                watchType = 2;
+                break;
+        }
+    }
+
+    @Override
+    protected void onServiceConnected() {
+        super.onServiceConnected();
+        watchFlagsFromPreference();
+    }
+
+    @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
+        if (watchType == 1) {
+            if ("com.tencent.mm".equals(accessibilityEvent.getPackageName())) {
+                return;
+            }
+        } else if (watchType == 2) {
+            if ("com.tencent.mobileqq".equals(accessibilityEvent.getPackageName())) {
+                return;
+            }
+        }
         switch (accessibilityEvent.getEventType()) {
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
                 watchNotifications(accessibilityEvent);
@@ -179,10 +218,10 @@ public class GrabbingRedPacketsService extends AccessibilityService {
             if (text == null) {
                 continue;
             }
-          //  Log.d(TAG, "findAccessibilityNodeInfosByText: " + text);
+            //  Log.d(TAG, "findAccessibilityNodeInfosByText: " + text);
             List<AccessibilityNodeInfo> nodes = nodeInfo.findAccessibilityNodeInfosByText(text);
             for (int i = 0; i < nodes.size(); i++) {
-               // Log.d(TAG, "findAccessibilityNodeInfosByTexts: " + nodes.get(i).getText().toString());
+                // Log.d(TAG, "findAccessibilityNodeInfosByTexts: " + nodes.get(i).getText().toString());
             }
             if (!nodes.isEmpty()) {
                 return nodes;
@@ -214,5 +253,27 @@ public class GrabbingRedPacketsService extends AccessibilityService {
     @Override
     public void onInterrupt() {
 
+    }
+
+    private void watchFlagsFromPreference() {
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if ("watch_list".equals(s)) {
+            switch (sharedPreferences.getString("watch_list", "")) {
+                case "watch_both":
+                    watchType = 0;
+                    break;
+                case "watch_qq":
+                    watchType = 1;
+                    break;
+                case "watch_wx":
+                    watchType = 2;
+                    break;
+            }
+        }
     }
 }

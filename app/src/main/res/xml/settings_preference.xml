@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory
+        android:title="@string/watch_options"
+        >
+    <ListPreference
+        android:key="watch_list"
+        android:dialogTitle="选择监控类型"
+        android:entries="@array/watch_entities"
+        android:entryValues="@array/watch_values"
+        android:defaultValue="watch_both"
+        android:summary="@string/watch_hint"
+        android:title="监控类型选择" />
+</PreferenceCategory>
+</PreferenceScreen>

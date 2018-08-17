@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="watch_entities">
+        <item>监控微信和QQ</item>
+        <item>只监控微信</item>
+        <item>只监控QQ</item>
+
+    </string-array>
+
+    <string-array name="watch_values">
+        <item>watch_both</item>
+        <item>watch_wx</item>
+        <item>watch_qq</item>
+    </string-array>
+</resources>

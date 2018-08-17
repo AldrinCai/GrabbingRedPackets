@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">GrabbingRedpackets</string>
-    <string name="service_description">可以抢QQ和微信的红包</string>
+    <string name="service_description">可以抢QQ和微信的红包，你需要打开QQ和微信的通知栏不然无法监控。</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_settings">设置</string>
+    <string name="watch_options">监控选项</string>
+    <string name="watch_hint">点击选择你需要监控的类型</string>
 </resources>
