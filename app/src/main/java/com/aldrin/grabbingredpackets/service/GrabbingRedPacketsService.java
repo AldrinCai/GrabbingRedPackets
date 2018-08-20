@@ -24,8 +24,6 @@ public class GrabbingRedPacketsService extends AccessibilityService implements S
     private final static String QQ_DEFAULT = "QQ红包";
     private final static String QQ_DEFAULT_PASSWORD = "口令红包";
     private final static String QQ_SEND_BUTTON_TEXT = "发送";
-
-
     private boolean mLuckyMoneyReceived;
     private String lastFetchedHongbaoId = null;
     private long lastFetchedTime = 0;
@@ -34,6 +32,11 @@ public class GrabbingRedPacketsService extends AccessibilityService implements S
     private List<AccessibilityNodeInfo> mReceiveNode;
     private SharedPreferences sharedPreferences;
     private int watchType;
+    private String[] watchMessage;
+    private String[] watchBothMessage = new String[]{QQ_DEFAULT, QQ_DEFAULT_PASSWORD,
+            QQ_CLICK_TO_ENTER_PASSWORD, WX_RED_PACKETS_GET, WX_GIVE_YOU_RED_PACKETS,WX_GET, QQ_SEND_BUTTON_TEXT};
+    private String[] watchQQMessage = new String[]{QQ_DEFAULT, QQ_SEND_BUTTON_TEXT, QQ_CLICK_TO_ENTER_PASSWORD, QQ_SEND_BUTTON_TEXT};
+    private String[] watchWXMessage = new String[]{WX_RED_PACKETS_GET, WX_GIVE_YOU_RED_PACKETS,WX_GET};
 
 
     @Override
@@ -62,11 +65,11 @@ public class GrabbingRedPacketsService extends AccessibilityService implements S
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         if (watchType == 1) {
-            if ("com.tencent.mm".equals(accessibilityEvent.getPackageName())) {
+            if ("com.tencent.mm".contentEquals(accessibilityEvent.getPackageName())) {
                 return;
             }
         } else if (watchType == 2) {
-            if ("com.tencent.mobileqq".equals(accessibilityEvent.getPackageName())) {
+            if ("com.tencent.mobileqq".contentEquals(accessibilityEvent.getPackageName())) {
                 return;
             }
         }
@@ -85,7 +88,6 @@ public class GrabbingRedPacketsService extends AccessibilityService implements S
 
     private void watchNotifications(AccessibilityEvent event) {
 
-        // 通知栏中的内容不包含"[QQ红包]"
         String tip = event.getText().toString();
         if (tip.contains("[微信红包]") || tip.contains("[QQ红包]")) {
             Parcelable parcelable = event.getParcelableData();
@@ -193,11 +195,22 @@ public class GrabbingRedPacketsService extends AccessibilityService implements S
         if (rootNodeInfo == null) {
             return;
         }
+
+        switch (watchType){
+            case 0:
+                watchMessage = watchBothMessage;
+                break;
+            case 1:
+                watchMessage = watchQQMessage;
+                break;
+            case 2:
+                watchMessage = watchWXMessage;
+                break;
+        }
+
         // 聊天会话窗口，遍历节点匹配
         List<AccessibilityNodeInfo> nodes1 = findAccessibilityNodeInfosByTexts(this.rootNodeInfo,
-                new String[]{QQ_DEFAULT, QQ_DEFAULT_PASSWORD, QQ_CLICK_TO_ENTER_PASSWORD,
-                        WX_RED_PACKETS_GET, WX_GIVE_YOU_RED_PACKETS
-                        , QQ_SEND_BUTTON_TEXT,WX_GET});
+                watchMessage);
         if (!nodes1.isEmpty()) {
             String nodeId = Integer.toHexString(System.identityHashCode(this.rootNodeInfo));
             if (!nodeId.equals(lastFetchedHongbaoId)) {
